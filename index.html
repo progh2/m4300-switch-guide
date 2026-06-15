@@ -189,6 +189,7 @@
       <a href="#step3">🔑 3. (선택) 관리IP<span>점검용</span></a>
       <a href="#step4">🔗 4. 케이블 연결<span>꽂는 순서</span></a>
       <a href="#step5">✅ 5. 테스트<span>확인하기</span></a>
+      <a href="#gui">🖱️ 웹(GUI) 사용법<span>화면으로 관리</span></a>
       <a href="#trouble">🆘 문제 해결<span>막혔을 때</span></a>
       <a href="#glossary">📖 용어 사전<span>모르는 단어</span></a>
     </div>
@@ -550,6 +551,83 @@ write memory</pre>
       <p><kbd>윈도우키</kbd>+<kbd>R</kbd> → <code class="inl">cmd</code> → 검은 창에 <code class="inl">ipconfig</code> 입력. "IPv4 주소"가 나오면(예: <code class="inl">192.168.0.x</code>) 정상입니다. <code class="inl">169.254.x.x</code>가 나오면 IP를 못 받은 것 → 문제 해결 참고.</p>
     </details>
     <p class="muted">관리 IP를 설정했다면(3단계), 점검 PC 브라우저에서 <code class="inl">https://<span class="ph" data-ph="mgmtIp">192.168.0.250</span></code> 으로 들어가 포트 상태를 볼 수 있습니다.</p>
+  </section>
+
+  <!-- [3주차] 웹(GUI) 사용법 -->
+  <section class="card" id="gui">
+    <h2>🖱️ 웹 화면(GUI)으로 관리하기</h2>
+    <p>명령어(콘솔)가 부담스럽다면, 집 공유기 설정창처럼 <b>웹 브라우저 화면</b>으로 스위치를 관리할 수 있습니다. 포트가 잘 연결됐는지, 속도는 얼마인지 등을 <b>마우스 클릭</b>으로 확인하는 방법입니다.</p>
+
+    <div class="note info">
+      <div class="t">ℹ️ 먼저 필요한 것</div>
+      웹 접속을 하려면 스위치에 <b>관리용 IP</b>가 있어야 합니다. <a href="#step3">3단계(선택)</a>에서 관리 IP를 설정했다면 바로 접속하면 되고, 안 했다면 아래 <b>"방법 B"</b>로 노트북을 직접 연결해 접속하세요.</div>
+
+    <h3>① 웹 화면 접속하기</h3>
+    <div class="tabs" data-tabs="gui-access">
+      <button class="tabbtn active" data-tab="gui-a">방법 A · 관리 IP가 있을 때</button>
+      <button class="tabbtn" data-tab="gui-b">방법 B · 노트북 직접 연결</button>
+    </div>
+    <div class="tabpane active" id="gui-a">
+      <ol class="check">
+        <li>점검용 노트북을 스위치에 랜선으로 연결합니다.</li>
+        <li>노트북이 관리 IP와 <b>같은 동네(대역)</b>인지 확인합니다. (예: 둘 다 <code class="inl">192.168.0.x</code>)</li>
+        <li>브라우저 주소창에 <code class="inl">https://<span class="ph" data-ph="mgmtIp">192.168.0.250</span></code> 입력 → 이동.</li>
+        <li>"보안 경고"가 떠도 <b>고급 → 계속 진행</b>을 누릅니다. (스위치 자체 인증서라 안전)</li>
+      </ol>
+    </div>
+    <div class="tabpane" id="gui-b">
+      <p>관리 IP를 안 정했을 때, 노트북을 스위치에 직접 연결해 접속하는 방법입니다.</p>
+      <ol class="check">
+        <li>노트북 랜선을 스위치의 아무 포트에 직접 꽂습니다.</li>
+        <li>노트북의 IP를 <b>수동(고정)</b>으로 잠깐 바꿉니다. (제어판 → 네트워크 → 어댑터 설정 → IPv4 속성)
+          <br>예: IP <code class="inl">169.254.100.50</code>, 마스크 <code class="inl">255.255.0.0</code> (스위치 기본 대역에 맞춤)</li>
+        <li>스위치 콘솔에서 <code class="inl">show network</code> 또는 <code class="inl">show ip interface brief</code> 로 현재 스위치 IP를 확인합니다.</li>
+        <li>브라우저에 그 IP를 <code class="inl">http://(확인한 IP)</code> 형태로 입력해 접속합니다.</li>
+        <li>점검이 끝나면 노트북 IP를 다시 <b>"자동으로 IP 받기"</b>로 되돌립니다.</li>
+      </ol>
+      <div class="note tip"><div class="t">💡</div> 직접 연결 접속이 까다로우면, <a href="#step3">3단계</a>에서 관리 IP를 먼저 설정해 두는 편이 훨씬 쉽습니다.</div>
+    </div>
+
+    <h3>② 로그인</h3>
+    <p>아이디 <code class="inl">admin</code>, 비밀번호는 <a href="#step3">3단계</a>에서 정한 값(처음이면 비워둠)으로 로그인합니다.</p>
+
+    <h3>③ 화면 구성 한눈에 보기</h3>
+    <p>로그인하면 위쪽에 <b>큰 메뉴 탭</b>이 있고, 왼쪽에 <b>세부 메뉴</b>가 나옵니다. 자주 쓰는 곳만 알아두면 됩니다.</p>
+    <div class="diagram">
+<pre>
+┌────────────────────────────────────────────────┐
+│ System │ Switching │ Routing │ QoS │ Security │ … │  ← 큰 메뉴(상단)
+├──────────┬─────────────────────────────────────┤
+│ 왼쪽      │                                     │
+│ 세부메뉴  │        설정/상태 내용 표시            │
+│ (트리)    │                                     │
+└──────────┴─────────────────────────────────────┘
+       오른쪽 위에 [ Save ] 버튼 → 설정 저장(꼭!)
+</pre>
+    </div>
+    <div class="table-wrap">
+      <table class="cmp">
+        <thead><tr><th>하고 싶은 것</th><th>메뉴 위치 (대략)</th></tr></thead>
+        <tbody>
+          <tr><th>포트 연결/속도 상태 보기</th><td>Switching → Ports → Port Configuration / Port Status</td></tr>
+          <tr><th>관리 IP 바꾸기</th><td>System → Management → Network Interface (IPv4)</td></tr>
+          <tr><th>VLAN(망 분리) 설정</th><td>Switching → VLAN</td></tr>
+          <tr><th>펌웨어 버전 확인/업데이트</th><td>System → Firmware / Maintenance</td></tr>
+          <tr><th>설정 저장 / 초기화</th><td>System → Maintenance (또는 우측 상단 Save)</td></tr>
+          <tr><th>비밀번호 변경</th><td>Security → Management Security → User Configuration</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>④ 설정을 바꿨다면 — 꼭 저장!</h3>
+    <div class="note danger">
+      <div class="t">💾 Save를 누르지 않으면 전원 끌 때 사라집니다</div>
+      웹에서 무언가 바꾼 뒤에는 <b>오른쪽 위 [Save]</b> 버튼(또는 <b>System → Maintenance → Save Configuration</b>)을 꼭 누르세요. 명령어의 <code class="inl">write memory</code>와 같은 역할입니다.
+    </div>
+    <div class="note tip">
+      <div class="t">💡 메뉴 이름이 조금 다를 수 있어요</div>
+      펌웨어 버전에 따라 메뉴 위치(Basic/Advanced 구분 등)가 다를 수 있습니다. <b>"Port", "IP", "VLAN", "Save"</b> 같은 핵심 단어를 기준으로 찾으면 됩니다. 이번 전시회는 단순 연결이라, 사실 웹에서 만질 것은 거의 없고 <b>포트 상태 확인</b> 정도면 충분합니다.
+    </div>
   </section>
 
   <!-- 문제 해결 -->
