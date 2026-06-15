@@ -91,6 +91,45 @@
   .check{padding-left:0}
   .check li:before{content:"☐";position:absolute;left:0;font-size:19px;color:var(--brand)}
 
+  /* 비교표 */
+  .table-wrap{overflow-x:auto;margin:14px 0}
+  table.cmp{border-collapse:collapse;width:100%;font-size:15px;min-width:480px}
+  table.cmp th,table.cmp td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}
+  table.cmp thead th{background:#1e3a8a;color:#fff;font-weight:700}
+  table.cmp tbody th{background:var(--soft);font-weight:700;white-space:nowrap}
+  table.cmp tr:nth-child(even) td{background:#fafbfd}
+  table.cmp .home{color:#0f766e}
+  table.cmp .sw{color:#1d4ed8;font-weight:600}
+  .spec{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0}
+  .spec .item{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .spec .num{font-size:22px;font-weight:800;color:var(--brand);display:block}
+  .spec .lbl{font-size:13px;color:var(--muted);margin-top:2px}
+  .analogy{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  .analogy .box{border-radius:12px;padding:16px;border:1px solid var(--line)}
+  .analogy .box.h{background:#ecfeff;border-color:#a5f3fc}
+  .analogy .box.s{background:#eff6ff;border-color:#bfdbfe}
+  .analogy .box h4{margin:0 0 6px;font-size:16px}
+  @media(max-width:640px){.analogy{grid-template-columns:1fr}}
+
+  /* 진행률 / 인터랙티브 체크 */
+  .ck{list-style:none;padding-left:0}
+  .ck li{position:relative;padding:6px 6px 6px 36px;border-radius:8px;cursor:pointer;margin:3px 0}
+  .ck li:hover{background:var(--soft)}
+  .ck li:before{content:"";position:absolute;left:6px;top:9px;width:20px;height:20px;border:2px solid var(--brand);
+    border-radius:5px;background:#fff;box-sizing:border-box}
+  .ck li.done{color:var(--muted)}
+  .ck li.done:before{background:var(--ok);border-color:var(--ok)}
+  .ck li.done:after{content:"✓";position:absolute;left:10px;top:5px;color:#fff;font-weight:800;font-size:15px}
+  .ck li.done .txt{text-decoration:line-through}
+  .progwrap{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:12px 0;
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .progbar{flex:1;min-width:160px;height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden}
+  .progbar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,#22c55e,#16a34a);transition:width .3s}
+  .progtxt{font-weight:700;color:var(--ink);white-space:nowrap}
+  .resetck{background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;
+    font-size:13px;font-weight:600;color:var(--muted)}
+  .resetck:hover{border-color:var(--danger);color:var(--danger)}
+
   footer{color:var(--muted);font-size:14px;text-align:center;padding:30px 18px 60px}
   details{background:var(--soft);border-radius:10px;padding:6px 14px;margin:10px 0}
   summary{cursor:pointer;font-weight:600;padding:8px 0}
@@ -141,6 +180,8 @@
 
     <h3 id="toc">바로가기</h3>
     <div class="toc">
+      <a href="#about">🖥️ M4300 소개·비교<span>공유기와 뭐가 달라?</span></a>
+      <a href="#concept">🧠 L2·L3·NAT 쉽게<span>그림으로 이해</span></a>
       <a href="#plan">🧭 네트워크 구조<span>먼저 읽기</span></a>
       <a href="#prep">🧰 0. 준비물<span>케이블·프로그램</span></a>
       <a href="#step1">🔌 1. 스위치 접속<span>콘솔 연결</span></a>
@@ -150,6 +191,127 @@
       <a href="#step5">✅ 5. 테스트<span>확인하기</span></a>
       <a href="#trouble">🆘 문제 해결<span>막혔을 때</span></a>
       <a href="#glossary">📖 용어 사전<span>모르는 단어</span></a>
+    </div>
+  </section>
+
+  <!-- [1주차] M4300 소개·비교 -->
+  <section class="card" id="about">
+    <h2>🖥️ M4300-24X24F는 어떤 장비인가요?</h2>
+    <p>집에서 쓰는 <b>인터넷 공유기(IP공유기)</b>는 다들 익숙하죠. M4300은 그것과 "사촌"쯤 되지만, 훨씬 크고 한 가지 일을 아주 잘하는 <b>전문가용 스위치</b>입니다. 공유기를 떠올리며 비교하면 이해가 쉬워요.</p>
+
+    <div class="analogy">
+      <div class="box h">
+        <h4>🏠 집 IP공유기</h4>
+        혼자서 <b>다 합니다</b> — 인터넷 받아오기, IP 나눠주기(DHCP), 주소 변환(NAT), 와이파이, 방화벽까지. 대신 유선 포트는 보통 4개, 속도는 1Gbps 정도. <b>한 집 살림용 만능 일꾼</b>.
+      </div>
+      <div class="box s">
+        <h4>🏢 M4300 스위치</h4>
+        <b>"연결과 전달"을 전문으로</b> 합니다. 포트가 매우 많고(48개) 아주 빠릅니다(각 10Gbps). 대신 NAT·와이파이는 없음. <b>빌딩의 거대한 배전반</b> 같은 존재.
+      </div>
+    </div>
+
+    <h3>주요 사양 (숫자로 보기)</h3>
+    <div class="spec">
+      <div class="item"><span class="num">48개</span><span class="lbl">10G 포트<br>(RJ-45 24 + SFP+ 24)</span></div>
+      <div class="item"><span class="num">10 Gbps</span><span class="lbl">포트 1개당 속도<br>(집 공유기의 약 10배)</span></div>
+      <div class="item"><span class="num">960 Gbps</span><span class="lbl">전체 스위칭 용량<br>(한 번에 처리량)</span></div>
+      <div class="item"><span class="num">714 Mpps</span><span class="lbl">초당 패킷 처리<br>(전달 속도)</span></div>
+      <div class="item"><span class="num">최대 8대</span><span class="lbl">스택(여러 대를<br>한 대처럼 묶기)</span></div>
+      <div class="item"><span class="num">L2 · L3 · L4</span><span class="lbl">스위칭+라우팅<br>모두 지원</span></div>
+    </div>
+
+    <h3>핵심 기능</h3>
+    <ul>
+      <li><b>완전 관리형(Fully Managed):</b> 웹 화면(GUI)·명령어(CLI)·콘솔로 세밀하게 설정 가능.</li>
+      <li><b>VLAN:</b> 하나의 스위치를 여러 개의 분리된 망으로 나눌 수 있음(전시 부스별 분리 등).</li>
+      <li><b>L3 라우팅(추가 비용 없음):</b> 정적 라우팅, RIP, OSPF, VRRP, 멀티캐스트(PIM) 등.</li>
+      <li><b>스택/고가용성:</b> 여러 대를 묶어 한 대처럼 운영, 장애 시 무중단 전환.</li>
+      <li><b>IPv4 / IPv6</b> 모두 지원.</li>
+    </ul>
+    <div class="note warn">
+      <div class="t">❌ 없는 기능 — 이게 핵심</div>
+      M4300에는 <b>NAT(주소 변환)와 와이파이가 없습니다.</b> 그래서 "혼자서 인터넷을 나눠주는 공유기"로는 쓸 수 없고, 이번 전시회에서도 공유기 뒤에 두는 <b>연결 전담 스위치</b>로 사용합니다. (왜 그런지는 아래 <a href="#concept">L2·L3·NAT 설명</a> 참고)
+    </div>
+
+    <h3>한눈에 비교: 집 IP공유기 vs M4300</h3>
+    <div class="table-wrap">
+      <table class="cmp">
+        <thead>
+          <tr><th>항목</th><th>🏠 집 IP공유기</th><th>🏢 M4300-24X24F</th></tr>
+        </thead>
+        <tbody>
+          <tr><th>주된 역할</th><td class="home">인터넷 공유 만능 장비</td><td class="sw">기기 연결·전달 전문 스위치</td></tr>
+          <tr><th>유선 포트 수</th><td class="home">보통 4개</td><td class="sw">48개 (24+24)</td></tr>
+          <tr><th>포트 속도</th><td class="home">1 Gbps</td><td class="sw">10 Gbps</td></tr>
+          <tr><th>IP 자동분배(DHCP)</th><td class="home">✅ 있음</td><td class="sw">⚠️ 가능하지만 이번엔 미사용</td></tr>
+          <tr><th>주소 변환(NAT)</th><td class="home">✅ 있음 (인터넷 공유의 핵심)</td><td class="sw">❌ 없음</td></tr>
+          <tr><th>와이파이</th><td class="home">✅ 대부분 있음</td><td class="sw">❌ 없음 (유선 전용)</td></tr>
+          <tr><th>라우팅(L3)</th><td class="home">간단한 수준</td><td class="sw">✅ 본격 지원(OSPF 등)</td></tr>
+          <tr><th>VLAN(망 분리)</th><td class="home">없거나 제한적</td><td class="sw">✅ 강력</td></tr>
+          <tr><th>관리 방식</th><td class="home">웹 화면</td><td class="sw">웹·명령어(CLI)·콘솔</td></tr>
+          <tr><th>가격대</th><td class="home">수만 원대</td><td class="sw">수백만 원대(전문 장비)</td></tr>
+          <tr><th>용도</th><td class="home">가정·소규모</td><td class="sw">학교·기업 백본/집선</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note tip">
+      <div class="t">🔑 한 줄 요약</div>
+      <b>공유기 = 한 집 살림을 혼자 다 하는 만능 일꾼</b>, <b>M4300 = 수많은 방을 빠르게 연결하는 빌딩 배전반.</b> 그래서 이번엔 공유기에게 "인터넷 살림"을 맡기고, M4300에게는 "많은 기기 연결"을 맡깁니다.
+    </div>
+  </section>
+
+  <!-- [2주차] L2 / L3 / NAT -->
+  <section class="card" id="concept">
+    <h2>🧠 L2 · L3 · NAT, 그림으로 쉽게</h2>
+    <p>네트워크 장비 설명에 꼭 나오는 세 단어입니다. 어렵게 들리지만 <b>"우편물 배달"</b>에 비유하면 쉽습니다.</p>
+
+    <h3>① L2 (스위치 / "같은 동네 안에서 전달")</h3>
+    <p>L2는 <b>같은 동네(같은 네트워크) 안</b>에서 기기끼리 데이터를 주고받는 일입니다. 각 기기는 <b>MAC 주소</b>라는 고유 번호(=집집마다의 문패)를 가지고 있고, 스위치는 "누가 어느 포트에 있는지" 외워뒀다가 정확한 포트로만 전달합니다. <b>M4300의 기본이자 이번 전시회에서 쓰는 기능</b>입니다.</p>
+    <div class="diagram">
+<pre>
+        같은 동네 (한 네트워크)
+   ┌──────────────────────────────┐
+   │   💻A ── [ L2 스위치 ] ── 💻B  │
+   │                 │             │
+   │                💻C            │
+   └──────────────────────────────┘
+   A가 C에게 보내면 → 스위치가 C 포트로만 콕 집어 전달
+   (문패=MAC 주소를 보고 같은 동네 안에서 배달)
+</pre>
+    </div>
+
+    <h3>② L3 (라우팅 / "다른 동네로 길 안내")</h3>
+    <p>L3는 <b>서로 다른 동네(다른 네트워크) 사이</b>를 오가는 일입니다. 이때는 <b>IP 주소</b>(=도시+동네+번지가 적힌 주소)를 보고 길을 안내(라우팅)합니다. M4300은 이 기능도 됩니다(L3 스위치). 다만 이번 전시회 구조에서는 사용하지 않습니다.</p>
+    <div class="diagram">
+<pre>
+   동네 1 (192.168.0.x)        동네 2 (10.0.0.x)
+   ┌───────────┐   라우팅    ┌───────────┐
+   │  💻 ── [ L3 라우터/스위치 ] ── 💻  │
+   └───────────┘            └───────────┘
+   "다른 동네 주소(IP)네? 그쪽으로 가는 길은 이쪽!"
+</pre>
+    </div>
+
+    <h3>③ NAT (주소 변환 / "여러 명이 대표 주소 하나로 외출")</h3>
+    <p>NAT는 <b>여러 기기의 내부 주소를, 인터넷으로 나갈 때 하나의 대표 주소로 바꿔주는</b> 일입니다. 인터넷(외부)에는 우리 집 안의 개별 주소가 안 보이고, <b>대표 주소(공인 IP) 하나</b>만 보입니다. 집 공유기가 매일 해주는 일이 바로 이것이고, <b>인터넷 공유의 핵심</b>입니다.</p>
+    <div class="diagram">
+<pre>
+   집 안 (사설 IP)                 인터넷 (공인 IP)
+   💻 192.168.0.11 ┐
+   📱 192.168.0.12 ┼─[ NAT 공유기 ]─→  203.0.113.50  →  🌐
+   📺 192.168.0.13 ┘    (대표 주소 1개로 변환)
+   외부에서는 셋 다 "203.0.113.50"으로 보임
+</pre>
+    </div>
+
+    <div class="note danger">
+      <div class="t">🚨 그래서 M4300으로는 인터넷 공유가 안 됩니다</div>
+      M4300은 <b>L2(연결)와 L3(라우팅)는 되지만 NAT는 못 합니다.</b> 즉 "여러 기기를 대표 주소 하나로 인터넷에 내보내는" 일을 할 수 없습니다. 그래서 그 일은 <b>집 공유기 같은 NAT 장비</b>에게 맡기고, M4300은 잘하는 일(빠른 연결=L2)만 시키는 것입니다.
+    </div>
+    <div class="note info">
+      <div class="t">🧩 이번 전시회 구조로 연결하면</div>
+      <b>인터넷 → [공유기: NAT·DHCP 담당] → [M4300: L2 연결 담당] → 전시 기기</b><br>
+      각자 잘하는 일만 맡아서, 가장 간단하고 안정적입니다. 자세한 구조는 아래 <a href="#plan">네트워크 구조</a>에서 이어집니다.
     </div>
   </section>
 
