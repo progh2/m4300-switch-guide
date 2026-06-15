@@ -9,7 +9,7 @@
 
 ## 📄 가이드 보기
 
-- **웹페이지(배포본):** [GitHub Pages 링크](https://progh2.github.io/m4300-dhcp-guide/)
+- **웹페이지(배포본):** [GitHub Pages 링크](https://progh2.github.io/m4300-switch-guide/)
 - 로컬에서 보기: `index.html` 파일을 브라우저로 열기
 
 ## 구성
