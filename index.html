@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M4300-24X24F 자동할당(DHCP) 서버 만들기 — 따라하기 가이드</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#ffffff; --ink:#1e293b; --muted:#64748b;
+    --brand:#2563eb; --brand2:#1d4ed8; --ok:#16a34a; --warn:#d97706; --danger:#dc2626;
+    --code-bg:#0b1220; --code-ink:#e2e8f0; --line:#e2e8f0; --soft:#f1f5f9;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+    color:var(--ink);background:#eef2f7;line-height:1.7;font-size:17px}
+  a{color:var(--brand)}
+  .wrap{max-width:920px;margin:0 auto;padding:0 18px}
+
+  /* Header */
+  header.hero{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:46px 0 40px}
+  header.hero .wrap{display:block}
+  .badge{display:inline-block;background:rgba(255,255,255,.18);padding:5px 12px;border-radius:999px;
+    font-size:14px;font-weight:600;letter-spacing:.3px;margin-bottom:14px}
+  header.hero h1{margin:0 0 10px;font-size:30px;line-height:1.3}
+  header.hero p{margin:0;font-size:17px;color:#dbeafe;max-width:640px}
+  .hero-meta{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px}
+  .chip{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);
+    padding:6px 12px;border-radius:8px;font-size:14px}
+
+  /* Layout */
+  main{padding:28px 0 80px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:24px 26px;margin:18px 0;box-shadow:0 1px 3px rgba(15,23,42,.05)}
+  h2{font-size:23px;margin:6px 0 14px;display:flex;align-items:center;gap:12px}
+  h3{font-size:19px;margin:22px 0 8px}
+  .stepnum{flex:0 0 auto;width:38px;height:38px;border-radius:10px;background:var(--brand);
+    color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700}
+  p{margin:10px 0}
+  ul,ol{margin:10px 0;padding-left:22px}
+  li{margin:6px 0}
+  .muted{color:var(--muted)}
+  hr{border:none;border-top:1px solid var(--line);margin:22px 0}
+
+  /* Table of contents */
+  .toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:8px}
+  .toc a{display:block;padding:12px 14px;background:var(--soft);border-radius:10px;
+    text-decoration:none;color:var(--ink);font-weight:600;border:1px solid transparent;transition:.15s}
+  .toc a:hover{border-color:var(--brand);background:#fff}
+  .toc a span{display:block;font-size:13px;color:var(--muted);font-weight:400;margin-top:2px}
+
+  /* Callouts */
+  .note{border-radius:12px;padding:14px 16px;margin:16px 0;border:1px solid;font-size:16px}
+  .note .t{font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:4px}
+  .note.tip{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}
+  .note.warn{background:#fffbeb;border-color:#fcd34d;color:#92400e}
+  .note.danger{background:#fef2f2;border-color:#fca5a5;color:#991b1b}
+  .note.info{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+
+  /* Code blocks */
+  .codewrap{position:relative;margin:14px 0}
+  pre{background:var(--code-bg);color:var(--code-ink);padding:16px 16px;border-radius:12px;
+    overflow-x:auto;font-size:15px;line-height:1.65;margin:0;
+    font-family:"D2Coding","Consolas","Courier New",monospace}
+  pre .cmt{color:#7c8aa5}
+  pre .ph{color:#fcd34d;font-weight:700}
+  .copybtn{position:absolute;top:10px;right:10px;background:#1e293b;color:#cbd5e1;border:1px solid #334155;
+    border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer;font-weight:600}
+  .copybtn:hover{background:#334155;color:#fff}
+  .copybtn.done{background:var(--ok);color:#fff;border-color:var(--ok)}
+  kbd{background:#1e293b;color:#fff;border-radius:6px;padding:2px 8px;font-size:14px;
+    font-family:monospace;border:1px solid #475569}
+  code.inl{background:var(--soft);padding:2px 7px;border-radius:6px;font-size:15px;
+    font-family:"D2Coding","Consolas",monospace;color:#b91c1c}
+
+  /* Tabs */
+  .tabs{display:flex;gap:6px;margin:16px 0 0;flex-wrap:wrap}
+  .tabbtn{padding:10px 18px;border:1px solid var(--line);background:var(--soft);border-radius:10px 10px 0 0;
+    cursor:pointer;font-weight:700;font-size:15px;color:var(--muted)}
+  .tabbtn.active{background:#fff;color:var(--brand);border-bottom-color:#fff;position:relative;top:1px}
+  .tabpane{border:1px solid var(--line);border-radius:0 12px 12px 12px;padding:18px;display:none;background:#fff}
+  .tabpane.active{display:block}
+
+  /* Settings (값 입력) */
+  .settings{background:#0b1220;border-radius:14px;padding:18px 20px;color:#e2e8f0}
+  .settings h3{color:#fff;margin-top:0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .field label{display:block;font-size:13px;color:#94a3b8;margin-bottom:4px;font-weight:600}
+  .field input{width:100%;padding:9px 11px;border-radius:8px;border:1px solid #334155;
+    background:#111c30;color:#fff;font-size:15px;font-family:monospace}
+  .field input:focus{outline:2px solid var(--brand);border-color:var(--brand)}
+  .field .hint{font-size:12px;color:#64748b;margin-top:3px}
+
+  /* Diagram */
+  .diagram{background:var(--soft);border:1px dashed #94a3b8;border-radius:12px;padding:18px;
+    text-align:center;overflow-x:auto}
+  .diagram pre{background:transparent;color:var(--ink);font-size:14px;padding:0;line-height:1.5}
+
+  /* checklist */
+  .check li{list-style:none;position:relative;padding-left:30px}
+  .check{padding-left:0}
+  .check li:before{content:"☐";position:absolute;left:0;font-size:19px;color:var(--brand)}
+
+  .pill{display:inline-block;background:var(--soft);border:1px solid var(--line);border-radius:999px;
+    padding:3px 12px;font-size:14px;font-weight:600;color:var(--muted);margin:2px 0}
+  footer{color:var(--muted);font-size:14px;text-align:center;padding:30px 18px 60px}
+  details{background:var(--soft);border-radius:10px;padding:6px 14px;margin:10px 0}
+  summary{cursor:pointer;font-weight:600;padding:8px 0}
+  @media(max-width:640px){
+    .grid2{grid-template-columns:1fr}
+    header.hero h1{font-size:24px}
+    body{font-size:16px}
+    .card{padding:18px 16px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="badge">뉴미디어IT쇼 · 졸업작품 전시회 네트워크 구축</div>
+    <h1>M4300-24X24F 스위치로<br>자동할당(DHCP) 서버 만들기</h1>
+    <p>예전 학교 백본 스위치를 다시 살려서, 전시장 기기들에게 IP 주소를 자동으로 나눠주는 서버로 만드는 방법입니다. 중학생도 그대로 따라 할 수 있도록 한 단계씩 설명합니다.</p>
+    <div class="hero-meta">
+      <span class="chip">⏱ 예상 소요 30~60분</span>
+      <span class="chip">🔧 NETGEAR M4300 시리즈</span>
+      <span class="chip">🌐 스위치=게이트웨이(L3) 구조</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- 개요 -->
+  <section class="card" id="intro">
+    <h2>📋 이 문서로 무엇을 하나요?</h2>
+    <p>전시장에 노트북·키오스크·작품 기기들을 켜고 랜선만 꽂으면 <b>알아서 인터넷에 연결</b>되게 만드는 것이 목표입니다. 그러려면 누군가 각 기기에게 IP 주소를 자동으로 나눠줘야 하는데, 그 역할을 이 <b>M4300 스위치</b>가 맡습니다. 이렇게 IP를 자동으로 나눠주는 기능을 <b>DHCP 서버</b>라고 부릅니다.</p>
+
+    <h3>전체 과정 한눈에 보기</h3>
+    <ol>
+      <li><b>준비물 챙기기</b> — 콘솔 케이블과 노트북</li>
+      <li><b>스위치에 접속하기</b> — 콘솔로 연결</li>
+      <li><b>공장 초기화</b> — 예전 학교 설정을 깨끗이 지우기</li>
+      <li><b>관리자 비밀번호 · 관리 IP 설정</b> — 웹으로 접속할 수 있게</li>
+      <li><b>외부망(인터넷) 고정 IP 연결</b> — 업링크 포트 설정</li>
+      <li><b>DHCP 서버 켜기</b> — IP 자동 분배 시작 ⭐핵심</li>
+      <li><b>저장하고 테스트</b> — 전원을 꺼도 설정이 남도록</li>
+    </ol>
+
+    <h3 id="toc">바로가기</h3>
+    <div class="toc">
+      <a href="#plan">🧭 네트워크 구조 &amp; 내 값 적기<span>먼저 읽고 값 채우기</span></a>
+      <a href="#prep">🧰 0. 준비물<span>케이블·프로그램</span></a>
+      <a href="#step1">🔌 1. 스위치 접속<span>콘솔 연결</span></a>
+      <a href="#step2">♻️ 2. 공장 초기화<span>설정 깨끗이</span></a>
+      <a href="#step3">🔑 3. 비밀번호·관리IP<span>웹 접속 준비</span></a>
+      <a href="#step4">🌐 4. 외부망 고정IP<span>인터넷 업링크</span></a>
+      <a href="#step5">🎯 5. DHCP 서버 켜기<span>IP 자동 분배</span></a>
+      <a href="#step6">💾 6. 저장 &amp; 테스트<span>마무리 확인</span></a>
+      <a href="#trouble">🆘 문제 해결<span>막혔을 때</span></a>
+      <a href="#glossary">📖 용어 사전<span>모르는 단어</span></a>
+    </div>
+  </section>
+
+  <!-- 네트워크 구조 + 값 입력 -->
+  <section class="card" id="plan">
+    <h2>🧭 먼저! 네트워크 구조 &amp; 내 값 적기</h2>
+    <p>우리가 만들 구조는 이렇습니다. M4300 스위치가 <b>인터넷 입구(게이트웨이)</b> 역할을 하면서, 동시에 전시 기기들에게 IP를 나눠줍니다.</p>
+
+    <div class="diagram">
+<pre>
+   [ 인터넷 / 학교 외부망 ]
+            │  (고정 IP 1개)
+            │
+   ┌────────┴─────────┐
+   │   M4300 스위치    │   ← ① 외부망 고정IP 받음(업링크 포트)
+   │  (라우팅 + DHCP)  │   ← ② IP를 자동으로 나눠줌
+   └──┬──┬──┬──┬──┬───┘
+      │  │  │  │  │      ← 전시 기기들이 꽂는 포트
+    💻 📺 🖥 🎮 📱      ← 꽂으면 IP 자동 할당!
+</pre>
+    </div>
+
+    <div class="note info">
+      <div class="t">💡 핵심 개념</div>
+      전시 기기들은 <code class="inl">192.168.50.xxx</code> 같은 <b>내부 IP</b>를 자동으로 받습니다. 그 기기들이 인터넷으로 나갈 때는 모두 스위치(<code class="inl">192.168.50.1</code>)를 거쳐서, 스위치가 받은 <b>외부망 고정 IP</b>를 통해 나갑니다.
+    </div>
+
+    <h3>✍️ 내 값 적기 (한 번만 입력하면 아래 모든 명령어에 자동으로 들어갑니다)</h3>
+    <p class="muted">학교/시설 담당자에게 받은 외부망 정보를 넣으세요. 내부망 값은 그대로 써도 되고 바꿔도 됩니다.</p>
+
+    <div class="settings">
+      <h3>🌐 외부망(인터넷) — 담당자에게 받은 값</h3>
+      <div class="grid2">
+        <div class="field">
+          <label>외부망 고정 IP 주소</label>
+          <input data-bind="extIp" value="203.0.113.50">
+          <div class="hint">예시값입니다. 받은 값으로 바꾸세요.</div>
+        </div>
+        <div class="field">
+          <label>외부망 서브넷 마스크</label>
+          <input data-bind="extMask" value="255.255.255.0">
+        </div>
+        <div class="field">
+          <label>외부망 게이트웨이</label>
+          <input data-bind="extGw" value="203.0.113.1">
+          <div class="hint">인터넷으로 나가는 출구 주소</div>
+        </div>
+        <div class="field">
+          <label>업링크 포트 번호</label>
+          <input data-bind="uplinkPort" value="1/0/1">
+          <div class="hint">외부망 랜선을 꽂을 포트</div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:18px">🏠 내부 전시망 — 그대로 써도 좋아요</h3>
+      <div class="grid2">
+        <div class="field">
+          <label>스위치 내부 IP (= 기기들의 게이트웨이)</label>
+          <input data-bind="inIp" value="192.168.50.1">
+        </div>
+        <div class="field">
+          <label>내부망 서브넷 마스크</label>
+          <input data-bind="inMask" value="255.255.255.0">
+        </div>
+        <div class="field">
+          <label>나눠줄 IP 시작</label>
+          <input data-bind="poolStart" value="192.168.50.100">
+        </div>
+        <div class="field">
+          <label>나눠줄 IP 끝</label>
+          <input data-bind="poolEnd" value="192.168.50.200">
+        </div>
+        <div class="field">
+          <label>내부망 대역(네트워크 주소)</label>
+          <input data-bind="inNet" value="192.168.50.0">
+          <div class="hint">보통 내부 IP의 마지막을 0으로</div>
+        </div>
+        <div class="field">
+          <label>DNS 서버 (인터넷 주소록)</label>
+          <input data-bind="dns" value="8.8.8.8 8.8.4.4">
+          <div class="hint">구글 DNS. 그대로 권장</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note warn">
+      <div class="t">⚠️ 아주 중요 — 담당자에게 꼭 확인하세요</div>
+      이 구조에서 스위치는 <b>라우팅</b>만 하고 <b>주소 변환(NAT)은 하지 않습니다.</b> 그래서 인터넷이 되려면 둘 중 하나가 필요합니다.
+      <ul style="margin-top:6px">
+        <li><b>(권장)</b> 외부망 담당자가 우리 내부 대역(<span class="ph" data-ph="inNet">192.168.50.0</span>/24)을 우리 고정 IP(<span class="ph" data-ph="extIp">203.0.113.50</span>)로 보내주도록 <b>경로(라우팅)를 등록</b>해 주거나,</li>
+        <li>외부망 입구에 <b>NAT(공유)를 해주는 공유기/방화벽</b>이 이미 있어서 우리 내부 IP를 대신 변환해 주면 됩니다.</li>
+      </ul>
+      둘 다 어렵다면, 전 단계 질문의 <b>"상위 공유기가 게이트웨이"</b> 구조가 훨씬 쉽습니다. 막히면 이 문서를 만든 사람에게 다시 물어보세요.
+    </div>
+  </section>
+
+  <!-- 0. 준비물 -->
+  <section class="card" id="prep">
+    <h2><span class="stepnum">0</span> 준비물 챙기기</h2>
+    <ul class="check">
+      <li><b>M4300-24X24F 스위치</b> + 전원 케이블</li>
+      <li><b>콘솔 케이블</b> — 스위치 'Console' 포트용. 모델에 따라 <b>RJ-45(랜선처럼 생김)</b> 또는 <b>USB-C / 미니USB</b> 케이블입니다. 스위치 앞/옆면의 <code class="inl">Console</code> 글씨를 찾으세요.</li>
+      <li><b>노트북(윈도우)</b> — 설정을 입력할 컴퓨터</li>
+      <li><b>USB-시리얼 변환기</b> — RJ-45 콘솔 케이블을 쓰는데 노트북에 9핀 시리얼 단자가 없을 때 필요 (대부분 필요)</li>
+      <li><b>랜선 2개 이상</b> — 외부망 연결용 1개, 테스트용 1개</li>
+    </ul>
+
+    <h3>노트북에 터미널 프로그램 설치</h3>
+    <p>콘솔로 스위치와 "대화"하려면 터미널 프로그램이 필요합니다. <b>PuTTY</b> 또는 <b>Tera Term</b>을 추천합니다(무료).</p>
+    <div class="note tip">
+      <div class="t">💡 팁</div>
+      윈도우에서는 <b>PuTTY</b>가 가장 간단합니다. 인터넷에서 "PuTTY 다운로드"로 검색해 설치하세요.
+    </div>
+  </section>
+
+  <!-- 1. 접속 -->
+  <section class="card" id="step1">
+    <h2><span class="stepnum">1</span> 스위치에 접속하기 (콘솔 연결)</h2>
+    <p>스위치는 처음엔 화면도 마우스도 없습니다. 그래서 <b>콘솔 케이블</b>로 노트북과 직접 연결해서 글자(명령어)로 대화합니다.</p>
+
+    <h3>① 케이블 연결</h3>
+    <ol>
+      <li>콘솔 케이블의 한쪽을 스위치 <code class="inl">Console</code> 포트에 꽂습니다.</li>
+      <li>반대쪽(USB)을 노트북에 꽂습니다.</li>
+      <li>스위치 전원을 켭니다.</li>
+    </ol>
+
+    <h3>② COM 포트 번호 확인 (윈도우)</h3>
+    <ol>
+      <li><kbd>윈도우키</kbd> + <kbd>X</kbd> → <b>장치 관리자</b> 클릭</li>
+      <li><b>포트(COM &amp; LPT)</b> 항목을 펼칩니다.</li>
+      <li><b>USB Serial Port (COM<u>3</u>)</b> 처럼 적힌 번호를 기억하세요. (숫자는 컴퓨터마다 다름)</li>
+    </ol>
+    <div class="note info">
+      <div class="t">ℹ️ 안 보이면</div>
+      USB-시리얼 변환기 드라이버가 없을 수 있습니다. 변환기 제조사(예: FTDI, Prolific) 드라이버를 설치하세요.
+    </div>
+
+    <h3>③ PuTTY로 접속</h3>
+    <ol>
+      <li>PuTTY를 실행합니다.</li>
+      <li>연결 종류(Connection type)를 <b>Serial</b> 로 선택합니다.</li>
+      <li><b>Serial line</b> 칸에 위에서 확인한 <code class="inl">COM3</code> 입력 (본인 번호로).</li>
+      <li><b>Speed</b> 칸에 <code class="inl">115200</code> 입력.</li>
+      <li><b>Open</b> 클릭.</li>
+    </ol>
+
+    <div class="note tip">
+      <div class="t">⚙️ 콘솔 통신 설정값 (외워두면 좋아요)</div>
+      속도 <b>115200</b> · 데이터 비트 <b>8</b> · 패리티 <b>None</b> · 정지 비트 <b>1</b> · 흐름 제어 <b>None</b> &nbsp;(줄여서 <b>115200 8-N-1</b>)
+    </div>
+
+    <h3>④ 로그인</h3>
+    <p>검은 창이 뜨면 <kbd>Enter</kbd>를 한 번 누르세요. 아이디를 물어보면 아래처럼 입력합니다.</p>
+    <div class="codewrap">
+      <button class="copybtn">복사</button>
+<pre>User: <span class="ph">admin</span>
+Password: <span class="cmt">(그냥 Enter — 처음엔 비밀번호가 없습니다)</span></pre>
+    </div>
+    <p>접속되면 화면 끝이 <code class="inl">(M4300-24X24F) &gt;</code> 처럼 바뀝니다. 성공입니다! 🎉</p>
+    <div class="note warn">
+      <div class="t">❓ 비밀번호를 모른다? (예전 학교 비번이 걸려 있음)</div>
+      예전에 설정한 비밀번호가 남아 로그인이 안 되면, 바로 다음 <b>2단계 공장 초기화</b>로 넘어가세요. 초기화하면 비밀번호도 사라집니다.
+    </div>
+  </section>
+
+  <!-- 2. 초기화 -->
+  <section class="card" id="step2">
+    <h2><span class="stepnum">2</span> 공장 초기화 (예전 학교 설정 지우기)</h2>
+    <p>예전 백본 서버 때 설정이 그대로 남아 있으면 충돌이 납니다. 깨끗하게 지우고 시작합니다. 상황에 따라 두 가지 방법이 있어요.</p>
+
+    <div class="tabs" data-tabs="reset">
+      <button class="tabbtn active" data-tab="reset-a">방법 A · 로그인 됨 (쉬움)</button>
+      <button class="tabbtn" data-tab="reset-b">방법 B · 비번 모름 (부트메뉴)</button>
+    </div>
+
+    <div class="tabpane active" id="reset-a">
+      <p>1단계에서 로그인에 성공했다면 이게 가장 쉽습니다. 명령어 한 줄이면 됩니다.</p>
+      <div class="codewrap">
+        <button class="copybtn">복사</button>
+<pre>enable
+clear config
+<span class="cmt">→ "Are you sure...?" 물으면  y  입력 후 Enter</span></pre>
+      </div>
+      <p>모든 설정이 공장 출고 상태로 돌아갑니다. 잠시 후 다시 <code class="inl">&gt;</code> 가 나오면 완료입니다.</p>
+      <div class="note tip">
+        <div class="t">💡 참고</div>
+        <code class="inl">clear config</code>는 설정만 지웁니다. 안전하게 하려면 이어서 스위치를 재부팅하세요: <code class="inl">reload</code> 입력 → <code class="inl">y</code>.
+      </div>
+    </div>
+
+    <div class="tabpane" id="reset-b">
+      <p>비밀번호를 몰라서 로그인이 아예 안 될 때는 <b>부트 메뉴</b>로 초기화합니다. (콘솔이 연결된 상태여야 합니다.)</p>
+      <ol>
+        <li>콘솔 창(PuTTY)을 열어둔 채로 스위치 <b>전원을 껐다 켭니다</b>.</li>
+        <li>부팅 글자들이 올라오다가 화면에 <code class="inl">Checking for application...</code> 같은 문구가 나오는 순간, 키보드 <kbd>Q</kbd> 를 <b>꾹 눌러</b> 부팅을 멈춥니다.</li>
+        <li>메뉴(번호 목록)가 나오면 <kbd>6</kbd> 을 입력하고 <kbd>Enter</kbd>. (보통 "Restore to factory defaults" 항목)</li>
+        <li>확인을 물으면 <kbd>y</kbd>. 초기화 후 자동으로 다시 부팅됩니다.</li>
+      </ol>
+      <div class="note info">
+        <div class="t">ℹ️ 타이밍이 중요</div>
+        문구가 지나가면 그냥 부팅돼 버립니다. 조금 일찍부터 <kbd>Q</kbd>를 연타하거나 꾹 누르고 있으면 잡기 쉬워요. 놓쳤으면 다시 전원을 껐다 켜서 시도하세요.
+      </div>
+    </div>
+
+    <div class="note danger">
+      <div class="t">🚨 되돌릴 수 없음</div>
+      초기화하면 예전 설정은 <b>완전히 사라집니다</b>. 이 스위치를 재사용하는 게 목적이니 괜찮지만, 혹시 살려야 할 설정이 있는지 한 번만 더 확인하세요.
+    </div>
+  </section>
+
+  <!-- 3. 비밀번호 / 관리 IP -->
+  <section class="card" id="step3">
+    <h2><span class="stepnum">3</span> 관리자 비밀번호 &amp; 관리 IP 설정</h2>
+    <p>이제부터 본격 설정입니다. 먼저 <b>관리자 비밀번호</b>를 정하고, 나중에 <b>웹 브라우저로도</b> 관리할 수 있게 준비합니다.</p>
+
+    <h3>① 설정 모드로 들어가기</h3>
+    <p>아래 명령은 앞으로 계속 씁니다. <b>설정을 시작할 때 항상 입력</b>한다고 생각하세요.</p>
+    <div class="codewrap">
+      <button class="copybtn">복사</button>
+<pre>enable
+configure</pre>
+    </div>
+    <p>화면 끝이 <code class="inl">(M4300-24X24F) (Config)#</code> 로 바뀌면 설정 모드입니다.</p>
+
+    <h3>② 관리자 비밀번호 정하기</h3>
+    <div class="codewrap">
+      <button class="copybtn">복사</button>
+<pre>username admin password <span class="ph">전시회비번2026</span> level 15
+<span class="cmt">→ 노랑 글씨를 원하는 비밀번호로 바꾸세요(영문/숫자 섞어 권장)</span></pre>
+    </div>
+    <div class="note warn">
+      <div class="t">📝 적어두기</div>
+      여기서 정한 비밀번호를 <b>꼭 메모</b>하세요. 잊으면 다시 2단계 초기화부터 해야 합니다.
+    </div>
+
+    <h3>③ 웹 접속이 되도록 (내부 IP는 4·5단계에서 함께 설정)</h3>
+    <p>이 스위치는 내부망 IP(<span class="ph" data-ph="inIp">192.168.50.1</span>)가 곧 웹 관리 주소가 됩니다. 그 IP는 5단계에서 만들어집니다. 웹 서버 기능만 미리 켜둡니다.</p>
+    <div class="codewrap">
+      <button class="copybtn">복사</button>
+<pre>ip http server
+ip http secure-server
+<span class="cmt">→ 일반(http)과 보안(https) 웹 접속을 모두 켭니다</span></pre>
+    </div>
+    <div class="note info">
+      <div class="t">🖱️ 웹 화면(GUI)으로 하고 싶다면</div>
+      아직은 웹에 접속할 IP가 없어서 콘솔로 진행합니다. 5단계까지 마치면 노트북을 스위치에 랜선으로 꽂고 브라우저 주소창에 <code class="inl">https://<span class="ph" data-ph="inIp">192.168.50.1</span></code> 을 치면 웹 화면이 나옵니다. 이후 설정은 웹으로도 할 수 있어요(각 단계의 <b>웹으로 하기</b> 탭 참고).
+    </div>
+  </section>
+
+  <!-- 4. 외부망 -->
+  <section class="card" id="step4">
+    <h2><span class="stepnum">4</span> 외부망(인터넷) 고정 IP 연결</h2>
+    <p>스위치가 인터넷으로 나갈 수 있도록 <b>업링크 포트</b>에 외부망 고정 IP를 설정합니다. 그리고 인터넷으로 가는 길(기본 경로)을 알려줍니다.</p>
+
+    <div class="tabs" data-tabs="s4">
+      <button class="tabbtn active" data-tab="s4-cli">⌨️ 명령어로 하기</button>
+      <button class="tabbtn" data-tab="s4-web">🖱️ 웹으로 하기</button>
+    </div>
+
+    <div class="tabpane active" id="s4-cli">
+      <p>설정 모드(<code class="inl">configure</code>)에서 입력합니다. (3단계에 이어서 하면 됩니다.)</p>
+      <div class="codewrap">
+        <button class="copybtn">복사</button>
+<pre><span class="cmt">! 라우팅(길 안내) 기능 켜기 — 스위치가 인터넷 입구 역할을 하게 함</span>
+ip routing
+
+<span class="cmt">! 업링크 포트를 '라우팅 포트'로 만들고 외부망 고정IP 부여</span>
+interface <span class="ph" data-ph="uplinkPort">1/0/1</span>
+routing
+ip address <span class="ph" data-ph="extIp">203.0.113.50</span> <span class="ph" data-ph="extMask">255.255.255.0</span>
+exit
+
+<span class="cmt">! 인터넷으로 나가는 기본 경로(모든 길은 외부 게이트웨이로)</span>
+ip route 0.0.0.0 0.0.0.0 <span class="ph" data-ph="extGw">203.0.113.1</span></pre>
+      </div>
+      <p>이제 업링크 포트(<span class="ph" data-ph="uplinkPort">1/0/1</span>)에 <b>외부망 랜선</b>을 꽂으세요.</p>
+    </div>
+
+    <div class="tabpane" id="s4-web">
+      <p>웹 화면(5단계 이후 접속 가능)에서는 메뉴를 따라갑니다. NETGEAR M4300 웹 UI 기준입니다.</p>
+      <ol>
+        <li><b>라우팅 켜기:</b> 상단 메뉴 <b>Routing → IP → Basic → Global Configuration</b> 에서 <b>Routing Mode = Enable</b> 선택 후 <b>Apply</b>.</li>
+        <li><b>업링크 포트에 IP 주기:</b> <b>Routing → IP → Advanced → IP Interface Configuration</b> 에서 업링크 포트(<span class="ph" data-ph="uplinkPort">1/0/1</span>) 선택 → IP <span class="ph" data-ph="extIp">203.0.113.50</span>, Subnet <span class="ph" data-ph="extMask">255.255.255.0</span> 입력 → <b>Apply</b>.</li>
+        <li><b>기본 경로 추가:</b> <b>Routing → Routing Table → Route Configuration</b> 에서 <b>Add</b> → Network/Subnet 모두 <code class="inl">0.0.0.0</code>, Next Hop = <span class="ph" data-ph="extGw">203.0.113.1</span> 입력 → <b>Apply</b>.</li>
+      </ol>
+      <div class="note tip">
+        <div class="t">💡 더 쉬운 방법</div>
+        라우팅·IP 설정은 웹 메뉴가 다소 복잡합니다. 이 부분만큼은 <b>명령어로 하기</b> 탭이 더 빠르고 실수가 적습니다.
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. DHCP -->
+  <section class="card" id="step5">
+    <h2><span class="stepnum">5</span> ⭐ DHCP 서버 켜기 (IP 자동 분배)</h2>
+    <p>이 문서의 핵심입니다! 전시 기기들에게 IP를 자동으로 나눠주도록 설정합니다.</p>
+
+    <h3 style="margin-top:6px">먼저: 내부망 IP(기기들의 게이트웨이) 만들기</h3>
+    <p>전시 기기들이 꽂는 포트들이 모인 <b>내부망(기본 VLAN 1)</b>에 스위치 IP를 줍니다. 이 IP가 곧 기기들의 게이트웨이이자 웹 관리 주소가 됩니다.</p>
+
+    <div class="tabs" data-tabs="s5">
+      <button class="tabbtn active" data-tab="s5-cli">⌨️ 명령어로 하기</button>
+      <button class="tabbtn" data-tab="s5-web">🖱️ 웹으로 하기</button>
+    </div>
+
+    <!-- CLI -->
+    <div class="tabpane active" id="s5-cli">
+      <p>역시 설정 모드(<code class="inl">configure</code>)에서 이어서 입력합니다.</p>
+
+      <p><b>(1) 내부망 IP 부여 (VLAN 1)</b></p>
+      <div class="codewrap">
+        <button class="copybtn">복사</button>
+<pre>interface vlan 1
+routing
+ip address <span class="ph" data-ph="inIp">192.168.50.1</span> <span class="ph" data-ph="inMask">255.255.255.0</span>
+exit</pre>
+      </div>
+
+      <p><b>(2) 스위치 IP 등 일부 주소는 나눠주지 않도록 제외</b></p>
+      <div class="codewrap">
+        <button class="copybtn">복사</button>
+<pre><span class="cmt">! 시작 주소 앞쪽(스위치·예약용)과 끝쪽을 분배에서 제외</span>
+ip dhcp excluded-address <span class="ph" data-ph="inIp">192.168.50.1</span> <span class="ph" data-ph="poolStart">192.168.50.100</span>
+ip dhcp excluded-address <span class="ph" data-ph="poolEnd">192.168.50.200</span> 192.168.50.254</pre>
+      </div>
+      <p class="muted" style="font-size:14px">※ 위는 "시작~<span class="ph" data-ph="poolStart">192.168.50.100</span> 사이"와 "<span class="ph" data-ph="poolEnd">192.168.50.200</span>~끝 사이"를 빼서, 실제로는 <span class="ph" data-ph="poolStart">192.168.50.100</span>~<span class="ph" data-ph="poolEnd">192.168.50.200</span>만 나눠주는 효과입니다.</p>
+
+      <p><b>(3) DHCP 풀(나눠줄 IP 묶음) 만들기</b></p>
+      <div class="codewrap">
+        <button class="copybtn">복사</button>
+<pre>ip dhcp pool <span class="ph">exhibition</span>
+network <span class="ph" data-ph="inNet">192.168.50.0</span> <span class="ph" data-ph="inMask">255.255.255.0</span>
+default-router <span class="ph" data-ph="inIp">192.168.50.1</span>
+dns-server <span class="ph" data-ph="dns">8.8.8.8 8.8.4.4</span>
+lease 0 12 0
+exit</pre>
+      </div>
+      <p class="muted" style="font-size:14px">※ <code class="inl">lease 0 12 0</code> = 빌려주는 시간 <b>0일 12시간 0분</b>. 전시회용으로 적당합니다(원하면 <code class="inl">1 0 0</code> = 1일).</p>
+
+      <p><b>(4) DHCP 서비스 켜기 (스위치 시작!)</b></p>
+      <div class="codewrap">
+        <button class="copybtn">복사</button>
+<pre>service dhcp
+exit</pre>
+      </div>
+      <p>마지막 <code class="inl">exit</code>로 설정 모드를 빠져나옵니다. 이제 포트에 기기를 꽂으면 IP가 자동으로 나갑니다! 🎉</p>
+    </div>
+
+    <!-- WEB -->
+    <div class="tabpane" id="s5-web">
+      <p>웹 화면(브라우저 <code class="inl">https://<span class="ph" data-ph="inIp">192.168.50.1</span></code> 접속)에서 진행합니다. NETGEAR M4300 메뉴 기준입니다.</p>
+
+      <p><b>(1) 내부망 IP 만들기</b></p>
+      <ol>
+        <li><b>Routing → VLAN → VLAN Routing</b> 에서 VLAN ID <code class="inl">1</code> 의 라우팅을 활성화(Create/Enable).</li>
+        <li><b>Routing → IP → Advanced → IP Interface Configuration</b> 에서 VLAN 1 선택 → IP <span class="ph" data-ph="inIp">192.168.50.1</span>, Mask <span class="ph" data-ph="inMask">255.255.255.0</span> 입력 → <b>Apply</b>.</li>
+      </ol>
+
+      <p><b>(2) DHCP 서버 켜기</b></p>
+      <ol>
+        <li><b>System → Services → DHCP Server → DHCP Server Configuration</b> 이동.</li>
+        <li><b>Admin Mode = Enable</b> 선택 → <b>Apply</b>.</li>
+        <li>같은 화면 아래 <b>Excluded Addresses</b>에서 나눠주지 않을 주소 범위(<span class="ph" data-ph="inIp">192.168.50.1</span> 등)를 추가합니다.</li>
+      </ol>
+
+      <p><b>(3) DHCP 풀 만들기</b></p>
+      <ol>
+        <li><b>System → Services → DHCP Server → DHCP Pool Configuration</b> 이동.</li>
+        <li><b>Pool Name</b>에서 <b>Create</b> 선택 → 이름 <code class="inl">exhibition</code> 입력.</li>
+        <li><b>Type of Binding = Dynamic</b> 선택.</li>
+        <li><b>Network Number</b> = <span class="ph" data-ph="inNet">192.168.50.0</span>, <b>Network Mask</b> = <span class="ph" data-ph="inMask">255.255.255.0</span>.</li>
+        <li><b>Default Router</b> = <span class="ph" data-ph="inIp">192.168.50.1</span>, <b>DNS Server</b> = <span class="ph" data-ph="dns">8.8.8.8 8.8.4.4</span>.</li>
+        <li><b>Lease Time</b> = 12 hours (원하는 값) → <b>Apply</b>.</li>
+      </ol>
+      <div class="note tip">
+        <div class="t">💡 메뉴 이름이 살짝 다를 수 있어요</div>
+        펌웨어 버전에 따라 메뉴 위치(Advanced/Basic)가 조금 다릅니다. <b>"DHCP"</b>, <b>"IP Interface"</b> 단어를 기준으로 찾으면 됩니다.
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. 저장 & 테스트 -->
+  <section class="card" id="step6">
+    <h2><span class="stepnum">6</span> 저장하고 테스트하기</h2>
+
+    <h3>① 설정 저장 (전원 꺼도 안 사라지게) — 가장 중요!</h3>
+    <div class="note danger">
+      <div class="t">🚨 저장 안 하면 헛수고</div>
+      저장하지 않고 전원을 끄면 <b>모든 설정이 사라집니다.</b> 반드시 아래 명령으로 저장하세요.
+    </div>
+    <div class="codewrap">
+      <button class="copybtn">복사</button>
+<pre>enable
+write memory
+<span class="cmt">→ "Are you sure...?" 물으면  y  입력</span></pre>
+    </div>
+    <p class="muted">웹 화면에서는 오른쪽 위 <b>Save</b> 또는 <b>System → Maintenance → Save Config</b> 버튼을 누르면 됩니다.</p>
+
+    <h3>② 잘 됐는지 확인하기</h3>
+    <p>콘솔에서 아래 명령으로 상태를 확인합니다.</p>
+    <div class="codewrap">
+      <button class="copybtn">복사</button>
+<pre><span class="cmt">! IP 설정 확인</span>
+show ip interface brief
+
+<span class="cmt">! 기기에게 나눠준 IP 목록 확인 (기기 꽂은 뒤)</span>
+show ip dhcp binding
+
+<span class="cmt">! DHCP 풀 상태 확인</span>
+show ip dhcp pool</pre>
+    </div>
+
+    <h3>③ 진짜 테스트 (제일 확실한 방법)</h3>
+    <ol class="check">
+      <li>노트북의 랜 설정을 <b>"자동으로 IP 받기(DHCP)"</b>로 둡니다.</li>
+      <li>노트북 랜선을 스위치의 아무 일반 포트(업링크 포트 빼고)에 꽂습니다.</li>
+      <li>잠시 후 노트북이 <code class="inl"><span class="ph" data-ph="poolStart">192.168.50.100</span>~<span class="ph" data-ph="poolEnd">192.168.50.200</span></code> 사이 IP를 받으면 <b>DHCP 성공!</b></li>
+      <li>브라우저로 아무 사이트나 열리면 <b>인터넷까지 성공!</b> 🎉</li>
+    </ol>
+
+    <details>
+      <summary>윈도우에서 노트북이 받은 IP 확인하는 법</summary>
+      <p><kbd>윈도우키</kbd>+<kbd>R</kbd> → <code class="inl">cmd</code> 입력 → 검은 창에 <code class="inl">ipconfig</code> 입력. "IPv4 주소"가 <span class="ph" data-ph="inIp">192.168.50</span>.x 면 성공입니다.</p>
+    </details>
+  </section>
+
+  <!-- 전체 명령어 한 번에 -->
+  <section class="card" id="allcmd">
+    <h2>📜 부록 A · 전체 명령어 한 번에 (복습용)</h2>
+    <p>위에서 정한 값이 모두 반영된 <b>전체 명령어</b>입니다. 위에서부터 차례로 입력하면 됩니다. (이미 한 번 했다면 복습/재설정용으로 쓰세요.)</p>
+    <div class="codewrap">
+      <button class="copybtn">전체 복사</button>
+<pre>enable
+configure
+
+<span class="cmt">! --- 비밀번호 & 웹 ---</span>
+username admin password <span class="ph">전시회비번2026</span> level 15
+ip http server
+ip http secure-server
+
+<span class="cmt">! --- 라우팅 & 외부망 업링크 ---</span>
+ip routing
+interface <span class="ph" data-ph="uplinkPort">1/0/1</span>
+routing
+ip address <span class="ph" data-ph="extIp">203.0.113.50</span> <span class="ph" data-ph="extMask">255.255.255.0</span>
+exit
+ip route 0.0.0.0 0.0.0.0 <span class="ph" data-ph="extGw">203.0.113.1</span>
+
+<span class="cmt">! --- 내부망 IP (기기들의 게이트웨이) ---</span>
+interface vlan 1
+routing
+ip address <span class="ph" data-ph="inIp">192.168.50.1</span> <span class="ph" data-ph="inMask">255.255.255.0</span>
+exit
+
+<span class="cmt">! --- DHCP 서버 ---</span>
+ip dhcp excluded-address <span class="ph" data-ph="inIp">192.168.50.1</span> <span class="ph" data-ph="poolStart">192.168.50.100</span>
+ip dhcp excluded-address <span class="ph" data-ph="poolEnd">192.168.50.200</span> 192.168.50.254
+ip dhcp pool <span class="ph">exhibition</span>
+network <span class="ph" data-ph="inNet">192.168.50.0</span> <span class="ph" data-ph="inMask">255.255.255.0</span>
+default-router <span class="ph" data-ph="inIp">192.168.50.1</span>
+dns-server <span class="ph" data-ph="dns">8.8.8.8 8.8.4.4</span>
+lease 0 12 0
+exit
+service dhcp
+exit
+
+<span class="cmt">! --- 저장 (필수!) ---</span>
+write memory</pre>
+    </div>
+  </section>
+
+  <!-- 문제 해결 -->
+  <section class="card" id="trouble">
+    <h2>🆘 문제 해결 (막혔을 때)</h2>
+
+    <details>
+      <summary>콘솔 창에 글자가 안 보여요 / 깨져 나와요</summary>
+      <ul>
+        <li>속도가 <b>115200</b> 인지 확인하세요. (구형은 9600일 수도 있어요 — 둘 다 시도)</li>
+        <li>COM 포트 번호가 맞는지 장치 관리자에서 다시 확인하세요.</li>
+        <li>케이블을 다시 꽂고, <kbd>Enter</kbd>를 몇 번 눌러 보세요.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>기기를 꽂아도 IP를 못 받아요</summary>
+      <ul>
+        <li><code class="inl">service dhcp</code> 를 켰는지 확인 (<code class="inl">show ip dhcp pool</code>).</li>
+        <li>내부망 IP(<span class="ph" data-ph="inIp">192.168.50.1</span>)를 VLAN 1에 줬는지 확인 (<code class="inl">show ip interface brief</code>).</li>
+        <li>기기를 <b>업링크 포트(<span class="ph" data-ph="uplinkPort">1/0/1</span>)가 아닌</b> 다른 포트에 꽂았는지 확인. 업링크 포트는 외부망 전용입니다.</li>
+        <li>기기의 랜 설정이 <b>"자동으로 IP 받기"</b> 인지 확인.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>IP는 받는데 인터넷이 안 돼요</summary>
+      <ul>
+        <li>업링크 포트에 외부망 랜선이 제대로 꽂혔는지 확인.</li>
+        <li>기본 경로가 맞는지 확인: <code class="inl">show ip route</code> 에 <code class="inl">0.0.0.0/0</code> → <span class="ph" data-ph="extGw">203.0.113.1</span> 가 있어야 함.</li>
+        <li><b>가장 흔한 원인:</b> 외부망에서 우리 내부 대역(<span class="ph" data-ph="inNet">192.168.50.0</span>/24)으로 돌아오는 길이 없음. 위 <a href="#plan">네트워크 구조</a>의 <b>주의 박스</b>를 다시 보고, 외부망 담당자에게 <b>경로 등록</b> 또는 <b>NAT</b>를 요청하세요.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>비밀번호를 잊어버렸어요</summary>
+      <p>되돌리는 방법은 <a href="#step2">2단계 · 방법 B(부트메뉴 초기화)</a> 뿐입니다. 초기화 후 처음부터 다시 설정하세요. 그래서 비밀번호는 꼭 메모해 두세요.</p>
+    </details>
+
+    <details>
+      <summary>전원을 껐다 켜니 설정이 다 사라졌어요</summary>
+      <p><code class="inl">write memory</code> (또는 웹의 Save)로 <b>저장을 안 한</b> 것입니다. 다시 설정한 뒤 반드시 저장하세요. → <a href="#step6">6단계</a></p>
+    </details>
+  </section>
+
+  <!-- 용어 사전 -->
+  <section class="card" id="glossary">
+    <h2>📖 용어 사전 (모르는 단어가 나오면)</h2>
+    <ul>
+      <li><b>스위치</b> — 여러 기기를 랜선으로 연결해 주는 네트워크 장비. M4300은 그중 똑똑한(관리형) 스위치.</li>
+      <li><b>DHCP</b> — 기기에게 IP 주소를 <b>자동으로 나눠주는</b> 기능. 이 문서의 목표.</li>
+      <li><b>IP 주소</b> — 네트워크에서 기기의 "집 주소". 예: <span class="ph" data-ph="inIp">192.168.50.1</span></li>
+      <li><b>게이트웨이</b> — 다른 네트워크(인터넷)로 나가는 "출입문". 우리 기기들의 출입문은 스위치.</li>
+      <li><b>서브넷 마스크</b> — 같은 동네(네트워크)의 범위를 정하는 값. 보통 <code class="inl">255.255.255.0</code>.</li>
+      <li><b>DNS</b> — 사람이 읽는 주소(naver.com)를 IP로 바꿔주는 "인터넷 전화번호부".</li>
+      <li><b>라우팅</b> — 서로 다른 네트워크 사이에서 길을 안내하는 것. 스위치를 인터넷 입구로 만드는 기능.</li>
+      <li><b>NAT</b> — 여러 내부 IP를 하나의 외부 IP로 바꿔 인터넷에 내보내는 기능. (M4300은 이걸 못해서 외부망의 도움이 필요)</li>
+      <li><b>콘솔</b> — 화면 없는 장비를 케이블로 직접 연결해 글자로 설정하는 통로.</li>
+      <li><b>CLI</b> — 명령어(글자)로 설정하는 방식. <b>GUI</b> — 마우스로 화면 클릭해 설정하는 방식(웹 화면).</li>
+      <li><b>업링크 포트</b> — 외부망(인터넷 방향)으로 연결되는 포트.</li>
+      <li><b>VLAN</b> — 하나의 스위치를 여러 개의 가상 네트워크로 나누는 기능. 우리는 기본값(VLAN 1)만 사용.</li>
+      <li><b>Lease(임대 시간)</b> — 나눠준 IP를 얼마 동안 빌려주는지의 시간.</li>
+    </ul>
+  </section>
+
+  <footer>
+    M4300-24X24F 자동할당(DHCP) 서버 구축 가이드 · 뉴미디어IT쇼 졸업작품 전시회용<br>
+    명령어와 메뉴 이름은 NETGEAR M4300 펌웨어 기준이며, 버전에 따라 일부 다를 수 있습니다.
+  </footer>
+
+</main>
+
+<script>
+  // ---- 탭 전환 ----
+  document.querySelectorAll('.tabs').forEach(function(group){
+    group.querySelectorAll('.tabbtn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var card = group.closest('.card');
+        var targetId = btn.getAttribute('data-tab');
+        group.querySelectorAll('.tabbtn').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        // 같은 카드 안의, 이 탭그룹에 속한 pane들만 토글
+        var paneIds = Array.from(group.querySelectorAll('.tabbtn')).map(function(b){return b.getAttribute('data-tab');});
+        paneIds.forEach(function(id){
+          var p = document.getElementById(id);
+          if(p) p.classList.toggle('active', id === targetId);
+        });
+      });
+    });
+  });
+
+  // ---- 값 입력 → 모든 .ph 자동 반영 ----
+  function applyValues(){
+    document.querySelectorAll('input[data-bind]').forEach(function(input){
+      var key = input.getAttribute('data-bind');
+      var val = input.value.trim() || '___';
+      document.querySelectorAll('.ph[data-ph="'+key+'"]').forEach(function(span){
+        span.textContent = val;
+      });
+    });
+  }
+  document.querySelectorAll('input[data-bind]').forEach(function(input){
+    input.addEventListener('input', applyValues);
+  });
+  applyValues();
+
+  // ---- 복사 버튼 ----
+  document.querySelectorAll('.copybtn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var pre = btn.parentElement.querySelector('pre');
+      // 주석(.cmt)도 포함한 보이는 텍스트 그대로 복사
+      var text = pre.innerText;
+      navigator.clipboard.writeText(text).then(function(){
+        var old = btn.textContent;
+        btn.textContent = '복사됨 ✓';
+        btn.classList.add('done');
+        setTimeout(function(){ btn.textContent = old; btn.classList.remove('done'); }, 1500);
+      }).catch(function(){
+        // 클립보드 권한 없을 때: 텍스트 선택
+        var range = document.createRange();
+        range.selectNodeContents(pre);
+        var sel = window.getSelection();
+        sel.removeAllRanges(); sel.addRange(range);
+      });
+    });
+  });
+</script>
+</body>
+</html>

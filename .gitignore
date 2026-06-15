@@ -1,0 +1,7 @@
+# Claude Code 로컬 설정/메모리 (배포 제외)
+.claude/
+
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
